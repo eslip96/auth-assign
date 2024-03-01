@@ -16,8 +16,8 @@ def validate_uuid4(uuid_string):
         return False
 
 
-def validate_token(arg_zero):
-    auth_token = arg_zero.headers['auth']
+def validate_token(request):
+    auth_token = request.headers.get['auth']
 
     if not auth_token or not validate_uuid4(auth_token):
         return False
@@ -54,6 +54,7 @@ def auth_admin(func):
     @functools.wraps(func)
     def wrapper_auth_return(*args, **kwargs):
         auth_info = validate_token(args[0])
+        # user_query = db.session.query(Users).filter(Users.user_id == auth_info.user.user_id).first()
 
         if auth_info and auth_info.user.role == 'admin':
             return func(*args, **kwargs)

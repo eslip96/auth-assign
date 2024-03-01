@@ -17,3 +17,13 @@ def add_user(req):
         db.session.rollback()
         return jsonify({'message': 'unable to create user'}), 400
     return jsonify({'message': 'user created', 'results': user_schema.dump(new_user)})
+
+
+def get_all_users(req):
+    try:
+        all_users = db.session.query(Users).all()
+
+        num_user = users_schema.dump(all_users)
+        return jsonify({"message": 'success', 'results': num_user}), 200
+    except:
+        return jsonify({"message": "unable to pull users"}), 400

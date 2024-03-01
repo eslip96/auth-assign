@@ -2,7 +2,7 @@ from flask import jsonify, request
 from flask_bcrypt import check_password_hash
 from datetime import datetime, timedelta
 from db import db
-from models.auth_tokens import AuthTokens, auth_token_schema
+from models.auth_token import AuthTokens, auth_token_schema
 from models.users import Users
 
 

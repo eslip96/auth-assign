@@ -5,8 +5,10 @@ from models.company import company_schema, companies_schema, Companies
 from models.product import product_schema, products_schema, Products
 from util.reflection import populate_object
 from models.product_category_xref import *
+from lib.authenicate import *
 
 
+@auth_admin
 def add_company(req):
     post_data = req.form if req.form else req.json
     new_company = Companies.new_company_obj()
@@ -21,6 +23,7 @@ def add_company(req):
     return jsonify({"message": "company created", "results": company_schema.dump(new_company)}), 201
 
 
+@auth
 def get_all_companies(req):
     try:
         companies = db.session.query(Companies).all()
@@ -32,6 +35,7 @@ def get_all_companies(req):
         return jsonify({"message": "failed to retrieve companies"}), 400
 
 
+@auth_admin
 def update_company(req, company_id):
     post_data = req.form if req.form else req.json
 
@@ -62,6 +66,7 @@ def get_company_by_id(req, company_id):
     return jsonify({"message": "company requested", "data": company_schema.dump(company)}), 200
 
 
+@auth_admin
 def delete_company(company_id):
     company_query = db.session.query(Companies).filter(Companies.company_id == company_id).first()
 

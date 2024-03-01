@@ -104,6 +104,7 @@ def add_product_to_category(req):
         return jsonify({'message': 'failed to add product to category.'}), 400
 
 
+@auth
 def get_products_by_company_id(req, company_id):
     try:
         products = db.session.query(Products).filter(Products.company_id == company_id).all()

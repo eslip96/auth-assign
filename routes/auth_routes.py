@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 
 import controllers
 
-auth = Blueprint('auth'.__name__)
+auth = Blueprint('auth', __name__)
 
 
 @auth.route('/user/auth', methods=['POST'])

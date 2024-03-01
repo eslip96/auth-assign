@@ -3,8 +3,10 @@ from db import db
 from models import *
 from models.category import category_schema, categories_schema
 from util.reflection import populate_object
+from lib.authenicate import *
 
 
+@auth_admin
 def create_category(req):
     post_data = req.form if req.form else req.get_json()
     new_category = Categories.new_category_obj()
@@ -19,6 +21,7 @@ def create_category(req):
     return jsonify({'message': 'category created', 'results': category_schema.dump(new_category)}), 201
 
 
+@auth
 def get_all_categories(req):
     categories = db.session.query(Categories).all()
     try:
@@ -29,6 +32,7 @@ def get_all_categories(req):
     return jsonify({"message": "current categories avaliable", "data": categories_schema.dump(categories)}), 201
 
 
+@auth_admin
 def update_category(req, category_id):
     post_data = req.form if req.form else req.json
     category = db.session.query(Categories).filter(Categories.category_id == category_id).first()
@@ -46,6 +50,7 @@ def update_category(req, category_id):
         return jsonify({"message": "failed to update category."}), 400
 
 
+@auth
 def get_category_by_id(req, category_id):
     category = db.session.query(Categories).filter(Categories.category_id == category_id).first()
     try:
@@ -56,6 +61,7 @@ def get_category_by_id(req, category_id):
     return jsonify({"message": "product requested", "data": category_schema.dump(category)}), 200
 
 
+@auth_admin
 def delete_category(category_id):
     category_query = db.session.query(Categories).filter(Categories.category_id == category_id).first()
 
