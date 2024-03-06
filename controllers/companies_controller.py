@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, request
 from db import db
 from models.company import *
 from models.company import company_schema, companies_schema, Companies
@@ -55,6 +55,7 @@ def update_company(req, company_id):
         return jsonify({"message": "failed to update company."}), 400
 
 
+@auth
 def get_company_by_id(req, company_id):
     company = db.session.query(Companies).filter(Companies.company_id == company_id).first()
 
@@ -67,7 +68,7 @@ def get_company_by_id(req, company_id):
 
 
 @auth_admin
-def delete_company(company_id):
+def delete_company(company_id, request):
     company_query = db.session.query(Companies).filter(Companies.company_id == company_id).first()
 
     if not company_query:
@@ -82,6 +83,7 @@ def delete_company(company_id):
         db.session.commit()
 
         return jsonify({"message": "company and associated products have been deleted", "deleted company": delete_company_data}), 200
-    except:
+    except Exception as e:
+        print(e)
         db.session.rollback()
         return jsonify({"message": "failed to delete company"}), 400

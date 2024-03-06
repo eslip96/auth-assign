@@ -117,16 +117,17 @@ def get_products_by_company_id(req, company_id):
 
 @auth_admin
 def delete_product(product_id):
-    product_query = db.session.query(Products).filter(Products.product_id == product_id).first()
-
-    if not product_query:
-        return jsonify({"message": "no product found with product id"}), 404
-
     try:
+        product_to_delete = Products.query.get(product_id)
+
+        if product_to_delete is None:
+            return jsonify({'message': 'product not found'}), 404
+
         db.session.query(products_categories_association_table).filter(products_categories_association_table.c.product_id == product_id).delete()
-        db.session.delete(product_query)
+        db.session.delete(product_to_delete)
         db.session.commit()
-        return jsonify({"message": "product with product id has been deleted"}), 200
+
+        return jsonify({'message': 'product deleted successfully'}), 200
     except:
         db.session.rollback()
-        return jsonify({"message": "unable to delete product"}), 404
+        return jsonify({'message': 'unable to delete product'}), 500
