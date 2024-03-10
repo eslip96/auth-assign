@@ -130,4 +130,4 @@ def delete_product(product_id):
         return jsonify({'message': 'product deleted successfully'}), 200
     except:
         db.session.rollback()
-        return jsonify({'message': 'unable to delete product'}), 500
+        return jsonify({'message': 'unable to delete product'}), 400

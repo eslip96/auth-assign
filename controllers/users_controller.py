@@ -37,22 +37,20 @@ def get_all_users(req):
 
 
 @auth_admin
-def delete_product(request, product_id):
+def delete_user(request, user_id):
     if not validate_token(request):
         return jsonify({'message': 'invalid token'}), 401
 
     try:
-        product_to_delete = Products.query.get(product_id)
+        user_to_delete = Users.query.get(user_id)
 
-        if product_to_delete is None:
-            return jsonify({'message': 'product not found'}), 404
+        if user_to_delete is None:
+            return jsonify({'message': 'user not found'}), 404
 
-        db.session.query(products_categories_association_table).filter(products_categories_association_table.c.product_id == product_id).delete()
-        db.session.delete(product_to_delete)
+        db.session.delete(user_to_delete)
         db.session.commit()
 
-        return jsonify({'message': 'product deleted successfully'}), 200
-    except Exception as e:
-        print(e)
+        return jsonify({'message': 'user deleted successfully'}), 200
+    except:
         db.session.rollback()
-        return jsonify({'message': 'unable to delete product'}), 500
+        return jsonify({'message': 'unable to delete user'}), 400
