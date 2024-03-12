@@ -15,7 +15,7 @@ def get_all_products():
     return controllers.get_all_products(request)
 
 
-@products.route('/product/active', methods=['GET'])
+@products.route('/products/active', methods=['GET'])
 def get_active_products():
     return controllers.get_active_products(request)
 
