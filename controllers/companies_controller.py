@@ -83,7 +83,6 @@ def delete_company(company_id, request):
         db.session.commit()
 
         return jsonify({"message": "company and associated products have been deleted", "deleted company": delete_company_data}), 200
-    except Exception as e:
-        print(e)
+    except:
         db.session.rollback()
         return jsonify({"message": "failed to delete company"}), 400
