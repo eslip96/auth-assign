@@ -27,4 +27,4 @@ def get_company_by_id(company_id):
 
 @companies.route('/company/delete/<company_id>', methods=['DELETE'])
 def delete_company(company_id):
-    return controllers.delete_company(company_id, request)
+    return controllers.delete_company(request, company_id)

@@ -11,7 +11,7 @@ def add_user():
 
 
 @users.route('/users', methods=['GET'])
-def get_users():
+def get_all_users():
     return controllers.get_all_users(request)
 
 

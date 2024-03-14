@@ -3,6 +3,7 @@ from db import db
 from models.company import *
 from models.company import company_schema, companies_schema, Companies
 from models.product import product_schema, products_schema, Products
+from models.product_category_xref import *
 from util.reflection import populate_object
 from models.product_category_xref import *
 from lib.authenicate import *
@@ -20,7 +21,7 @@ def add_company(req):
         db.session.rollback()
         return jsonify({"message": "unable to create company"}), 400
 
-    return jsonify({"message": "company created", "results": company_schema.dump(new_company)}), 201
+    return jsonify({"message": "company created", "result": company_schema.dump(new_company)}), 201
 
 
 @auth
@@ -30,7 +31,7 @@ def get_all_companies(req):
         if not companies:
             return jsonify({"message": "no companies found"}), 404
 
-        return jsonify({"message": "current companies in database", "data": companies_schema.dump(companies)}), 200
+        return jsonify({"message": "current companies in database", "results": companies_schema.dump(companies)}), 200
     except:
         return jsonify({"message": "failed to retrieve companies"}), 400
 
@@ -49,7 +50,7 @@ def update_company(req, company_id):
 
         db.session.commit()
 
-        return jsonify({"message": "company updated successfully", "data": company_schema.dump(company)}), 200
+        return jsonify({"message": "company updated successfully", "result": company_schema.dump(company)}), 200
     except:
         db.session.rollback()
         return jsonify({"message": "failed to update company."}), 400
@@ -64,25 +65,27 @@ def get_company_by_id(req, company_id):
             return jsonify({"message": "no company in database"}), 404
     except:
         return jsonify({"message": "failed to retrive company"}), 400
-    return jsonify({"message": "company requested", "data": company_schema.dump(company)}), 200
+    return jsonify({"message": "company requested", "result": company_schema.dump(company)}), 200
 
 
 @auth_admin
-def delete_company(company_id, request):
+def delete_company(req, company_id):
     company_query = db.session.query(Companies).filter(Companies.company_id == company_id).first()
 
     if not company_query:
         return jsonify({"message": "no company found with the given company id"}), 404
 
     try:
-        delete_company_data = product_schema.dump(company_query)
+        delete_company_result = product_schema.dump(company_query)
+
+        db.session.query(products_categories_association_table).filter(products_categories_association_table.c.product_id == company_id).delete()
 
         db.session.query(Products).filter(Products.company_id == company_id).delete()
-
         db.session.delete(company_query)
         db.session.commit()
 
-        return jsonify({"message": "company and associated products have been deleted", "deleted company": delete_company_data}), 200
-    except:
+        return jsonify({"message": "company and any associated products have been deleted", "deleted company": delete_company_result}), 200
+    except Exception as e:
+        print(e)
         db.session.rollback()
         return jsonify({"message": "failed to delete company"}), 400

@@ -1,4 +1,4 @@
-from flask import jsonify
+from flask import jsonify, request
 from db import db
 from models import *
 from models.product import product_schema, products_schema
@@ -19,7 +19,7 @@ def add_product(req):
         print(e)
         db.session.rollback()
         return jsonify({"message": "failed to create product."}), 400
-    return jsonify({'message': 'product created', 'results': product_schema.dump(new_product)}), 201
+    return jsonify({'message': 'product created', 'result': product_schema.dump(new_product)}), 201
 
 
 @auth
@@ -28,7 +28,7 @@ def get_all_products(req):
         products = db.session.query(Products).all()
         if not products:
             return jsonify({"message": "no products"}), 404
-        return jsonify({"message": "current product in database", "data": products_schema.dump(products)}), 201
+        return jsonify({"message": "current product in database", "results": products_schema.dump(products)}), 201
     except:
         return jsonify({"message": "failed to retrieve products"}), 400
 
@@ -39,7 +39,7 @@ def get_active_products(req):
         active_products = db.session.query(Products).filter(Products.active == True).all()
         if not active_products:
             return jsonify({"message": "no active products"}), 400
-        return jsonify({"message": "active products in database", "data": products_schema.dump(active_products)}), 201
+        return jsonify({"message": "active products in database", "results": products_schema.dump(active_products)}), 201
     except:
         return jsonify({"message": "failed to retrieve active products"}), 400
 
@@ -53,20 +53,29 @@ def get_product_by_id(req, product_id):
             return jsonify({"message": "no products in database"}), 404
     except:
         return jsonify({"message": "failed to retrieve product"}), 400
-    return jsonify({"message": "product requested", "data": product_schema.dump(prods)}), 200
+    return jsonify({"message": "product requested", "result": product_schema.dump(prods)}), 200
 
 
 @auth_admin
 def update_product(req, product_id):
-    post_data = req.form if req.form else req.json
-    product = db.session.query(Products).filter(Products.product_id == product_id).first()
-
-    populate_object(product, post_data)
-
     try:
+        post_data = req.form if req.form else req.json
+        product = db.session.query(Products).filter(Products.product_id == product_id).first()
+        if not product:
+            return jsonify({"message": "Product not found"}), 404
+        if 'product_name' in post_data:
+            product.product_name = post_data['product_name']
+        if 'description' in post_data:
+            product.description = post_data['description']
+        if 'price' in post_data:
+            product.price = post_data['price']
+        if 'active' in post_data:
+            product.active = post_data['active']
+
         db.session.commit()
-        return ({"message": "product updated", "results": product_schema.dump(product)}), 200
-    except:
+        return ({"message": "product updated", "result": product_schema.dump(product)}), 200
+    except Exception as e:
+        print(e)
         db.session.rollback()
         return jsonify({"message": "failed to update product"}), 400
 
@@ -110,13 +119,13 @@ def get_products_by_company_id(req, company_id):
         products = db.session.query(Products).filter(Products.company_id == company_id).all()
         if not products:
             return jsonify({"message": "no products found for the given company id."}), 404
-        return jsonify({"message": "products retrieved successfully.", "data": products_schema.dump(products)}), 200
+        return jsonify({"message": "products retrieved successfully.", "results": products_schema.dump(products)}), 200
     except:
         return jsonify({"message": "failed to retrieve products"}), 400
 
 
 @auth_admin
-def delete_product(product_id):
+def delete_product(req, product_id):
     try:
         product_to_delete = Products.query.get(product_id)
 

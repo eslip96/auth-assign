@@ -29,7 +29,7 @@ def get_all_categories(req):
             return jsonify({"message": "no categories in database"}), 404
     except:
         return jsonify({"message": "failed to retrive categories"}), 400
-    return jsonify({"message": "current categories avaliable", "data": categories_schema.dump(categories)}), 201
+    return jsonify({"message": "current categories avaliable", "results": categories_schema.dump(categories)}), 201
 
 
 @auth_admin
@@ -44,7 +44,7 @@ def update_category(req, category_id):
 
         db.session.commit()
 
-        return jsonify({"message": "category updated!", "data": category_schema.dump(category)}), 200
+        return jsonify({"message": "category updated!", "result": category_schema.dump(category)}), 200
     except:
         db.session.rollback()
         return jsonify({"message": "failed to update category."}), 400
@@ -58,11 +58,11 @@ def get_category_by_id(req, category_id):
             return jsonify({"message": "no category found with id"}), 404
     except:
         return jsonify({"message": "failed to retrieve category"}), 400
-    return jsonify({"message": "product requested", "data": category_schema.dump(category)}), 200
+    return jsonify({"message": "product requested", "result": category_schema.dump(category)}), 200
 
 
 @auth_admin
-def delete_category(category_id):
+def delete_category(req, category_id):
     category_query = db.session.query(Categories).filter(Categories.category_id == category_id).first()
 
     if not category_query:

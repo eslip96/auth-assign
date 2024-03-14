@@ -18,9 +18,9 @@ class Products(db.Model):
     category_id = db.Column(UUID(as_uuid=True), db.ForeignKey("Categories.category_id", ondelete="CASCADE"), nullable=True)
 
     company = db.relationship("Companies", foreign_keys='[Products.company_id]', back_populates='products')
-    categories = db.relationship("Categories",secondary=products_categories_association_table, back_populates='products', cascade='all,delete')
+    categories = db.relationship("Categories", secondary=products_categories_association_table, back_populates='products', cascade='all,delete')
 
-    def __init__(self, product_name, description, price, company_id,active):
+    def __init__(self, product_name, description, price, company_id, active):
         self.product_name = product_name
         self.description = description
         self.price = price
@@ -28,13 +28,14 @@ class Products(db.Model):
         self.active = active
 
     def new_product_obj():
-        return Products("","",0,"",True)
-    
+        return Products("", "", 0, "", True)
+
+
 class ProductsSchema(ma.Schema):
     class Meta:
-        fields=['product_id','product_name','description','price','categories','active','company_id','company']
-    company = ma.fields.Nested("CompaniesSchema",exclude=['products'])
-    categories = ma.fields.Nested("CategoriesSchema",exclude=['products'])
+        fields = ['product_id', 'product_name', 'description', 'price', 'categories', 'active', 'company']
+    company = ma.fields.Nested("CompaniesSchema", exclude=['products'])
+    categories = ma.fields.Nested("CategoriesSchema", many=True, exclude=['products'])
 
 
 product_schema = ProductsSchema()

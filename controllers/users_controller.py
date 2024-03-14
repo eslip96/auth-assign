@@ -22,7 +22,7 @@ def add_user(req):
     except:
         db.session.rollback()
         return jsonify({'message': 'unable to create user'}), 400
-    return jsonify({'message': 'user created', 'results': user_schema.dump(new_user)})
+    return jsonify({'message': 'user created', 'result': user_schema.dump(new_user)})
 
 
 @auth
